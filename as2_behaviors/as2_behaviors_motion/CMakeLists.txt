@@ -27,6 +27,7 @@ set(PROJECT_DEPENDENCIES
   geometry_msgs
   tf2_geometry_msgs
   Eigen3
+  ug_mpc
 )
 
 foreach(DEPENDENCY ${PROJECT_DEPENDENCIES})
@@ -39,6 +40,7 @@ set(PLUGINS_CPP_FILES
   follow_path_behavior/plugins/follow_path_plugin_trajectory.cpp
   go_to_behavior/plugins/go_to_plugin_position.cpp
   go_to_behavior/plugins/go_to_plugin_trajectory.cpp
+  go_to_behavior/plugins/go_to_plugin_mpc_trajectory.cpp
   land_behavior/plugins/land_plugin_platform.cpp
   land_behavior/plugins/land_plugin_speed.cpp
   land_behavior/plugins/land_plugin_trajectory.cpp

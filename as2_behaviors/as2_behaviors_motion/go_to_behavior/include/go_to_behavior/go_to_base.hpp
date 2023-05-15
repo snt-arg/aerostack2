@@ -77,7 +77,8 @@ public:
 
   void state_callback(geometry_msgs::msg::PoseStamped &pose_msg,
                       geometry_msgs::msg::TwistStamped &twist_msg) {
-    actual_pose_ = pose_msg;
+    actual_pose_  = pose_msg;
+    actual_twist_ = twist_msg;
 
     feedback_.actual_speed = Eigen::Vector3d(twist_msg.twist.linear.x, twist_msg.twist.linear.y,
                                              twist_msg.twist.linear.z)
@@ -208,6 +209,7 @@ protected:
   int platform_state_;
   go_to_plugin_params params_;
   geometry_msgs::msg::PoseStamped actual_pose_;
+  geometry_msgs::msg::TwistStamped actual_twist_;
   bool localization_flag_;
 
 };  // class GoToBase
