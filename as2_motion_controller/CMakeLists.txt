@@ -62,6 +62,7 @@ include_directories(
 set(PLUGIN_LIST
   differential_flatness_controller
   pid_speed_controller
+  smc_speed_controller
 )
 
 # Create a list of all the plugin files

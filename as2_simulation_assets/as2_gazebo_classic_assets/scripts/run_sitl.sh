@@ -228,12 +228,17 @@ function run_sitl() {
 	fi
 
 	# FIXME: VEHICLE --> IRIS
-	vehicle=iris
+	#vehicle=iris
+	vehicle=hexarotor_x
 	if [[ -n "$vehicle" ]]; then
 		export PX4_SIM_MODEL=${vehicle}
+		echo "SIM MODEL ====================="
+		echo $PX4_SIM_MODEL
 	else
 		export PX4_SIM_MODEL=iris
 	fi
+	
+	#export SYS_AUTOSTART=6001
 
 	working_dir="$build_path/tmp/sitl_${N}"
 	mkdir -p "$working_dir"
