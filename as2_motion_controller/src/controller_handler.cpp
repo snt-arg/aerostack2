@@ -114,6 +114,19 @@ ControllerHandler::ControllerHandler(
   static auto parameters_callback_handle_ = node_ptr_->add_on_set_parameters_callback(
       std::bind(&ControllerHandler::parametersCallback, this, std::placeholders::_1));
 
+  // params workaround
+  parameters_event_handle_ = std::make_shared<rclcpp::ParameterEventHandler>(node_ptr_);
+  static auto cb_          = parameters_event_handle_->add_parameter_event_callback(
+      [&](const rcl_interfaces::msg::ParameterEvent &ev) {
+        std::vector<rclcpp::Parameter> params;
+        for (const auto &param : ev.changed_parameters) {
+          params.push_back(node_ptr_->get_parameter(param.name));
+        }
+
+        this->parametersCallback(params);
+      });
+  // params workaround
+
   using namespace std::chrono_literals;
   // FIXME: Hardcoded timer period
   control_timer_ =
