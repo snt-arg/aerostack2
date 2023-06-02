@@ -232,8 +232,6 @@ bool Plugin::computeOutput(double dt,
     return false;
   }
 
-  resetCommands();
-
   switch (control_mode_in_.yaw_mode) {
     case as2_msgs::msg::ControlMode::YAW_ANGLE: {
       break;
