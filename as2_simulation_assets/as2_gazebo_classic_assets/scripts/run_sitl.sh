@@ -227,9 +227,7 @@ function run_sitl() {
 		no_pxh=""
 	fi
 
-	# FIXME: VEHICLE --> IRIS
-	#vehicle=iris
-	vehicle=hexarotor_x
+	vehicle=typhoon_h480 
 	if [[ -n "$vehicle" ]]; then
 		export PX4_SIM_MODEL=gazebo-classic_${vehicle}
 	else
