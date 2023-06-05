@@ -8,9 +8,6 @@
   <class type="go_to_plugin_position::Plugin" base_class_type="go_to_base::GoToBase">
     <description>Go to done with position commmands.</description>
   </class>
-  <class type="go_to_plugin_mpc_trajectory::Plugin" base_class_type="go_to_base::GoToBase">
-    <description>Go to done with velocity commmands from MPC.</description>
-  </class>
   <class type="go_to_plugin_trajectory::Plugin" base_class_type="go_to_base::GoToBase">
     <description>Go to done with trajectory generator.</description>
   </class>
