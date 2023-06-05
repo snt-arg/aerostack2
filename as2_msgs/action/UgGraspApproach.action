@@ -1,0 +1,11 @@
+# UG Grasp Approach action definition
+
+# Request / Goal
+geometry_msgs/Vector3 pos_goal
+geometry_msgs/Vector3 pos_poi
+---
+# Result
+
+---
+# Feedback
+
