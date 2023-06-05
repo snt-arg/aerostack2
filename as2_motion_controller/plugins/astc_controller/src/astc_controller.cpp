@@ -146,7 +146,8 @@ void Plugin::updateReference(const geometry_msgs::msg::TwistStamped &twist_msg) 
 
   flags_.yaw_speed    = true;
   flags_.ref_received = true;
-  printf("twist received\n");
+  printf("twist received [%f, %f, %f]\n", control_ref_.lin_vel.x(), control_ref_.lin_vel.y(),
+         control_ref_.lin_vel.z());
 };
 
 void Plugin::updateReference(const as2_msgs::msg::TrajectoryPoint &traj_msg) {
