@@ -46,6 +46,7 @@ set(MSGS_FILES
   "msg/BehaviorStatus.msg"
   "msg/YawMode.msg"
   "msg/ControllerDebug.msg"
+  "msg/UgMpcFeedback.msg"
 )
 
 set(SRVS_FILES
@@ -75,6 +76,7 @@ set(ACTION_FILES
   "action/SetArmingState.action"
   "action/SetOffboardMode.action"
   "action/FollowReference.action"
+  "action/UgGraspApproach.action"
 )
 
 rosidl_generate_interfaces(${PROJECT_NAME}
