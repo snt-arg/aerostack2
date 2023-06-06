@@ -127,8 +127,6 @@ private:
 
   std::shared_ptr<as2_motion_controller_plugin_base::ControllerBase> controller_ptr_;
 
-  std::shared_ptr<rclcpp::ParameterEventHandler> parameters_event_handle_;
-
 public:
   ControllerHandler(std::shared_ptr<as2_motion_controller_plugin_base::ControllerBase> controller,
                     as2::Node* node);
