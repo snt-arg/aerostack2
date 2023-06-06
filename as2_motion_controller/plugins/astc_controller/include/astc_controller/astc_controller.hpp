@@ -79,30 +79,36 @@ struct UAV_controlRef {
   double yaw_speed = 0.0;
 };
 
-struct AdaptiveSMCOut {
+struct ControllerOut {
   Eigen::Vector3d body_rates;
   Eigen::Quaterniond orientation;
   double thrust = 0.0;
 };
 
-class AdaptiveSMC {
+/// @brief Adaptive Super-Twisting Control (ASTC) based on the work of D.M.K.K. Venkateswara Rao et
+/// al. presented in arXiv: 2303.11770.
+class AdaptiveSuperTwistingController {
+private:
+  // logger
+  rclcpp::Logger logger_;
+
 public:
-  AdaptiveSMC() {}
+  AdaptiveSuperTwistingController(const rclcpp::Logger &logger) : logger_(logger) {}
   void reset();
   void setParamsFromRos();
   void setCurrentState(const UAV_state &state);
-  AdaptiveSMCOut update(double dt,
-                        const Eigen::Vector4d &pos_sp,
-                        const Eigen::Vector4d &vel_sp,
-                        const Control_flags &flags,
-                        as2_msgs::msg::ControllerDebug &dbg_msg);
+  ControllerOut update(double dt,
+                       const Eigen::Vector4d &pos_sp,
+                       const Eigen::Vector4d &vel_sp,
+                       const Control_flags &flags,
+                       as2_msgs::msg::ControllerDebug &dbg_msg);
 
   // controller state
   Eigen::Vector3d a_xyz_stc     = Eigen::Vector3d::Zero();
   Eigen::Vector3d a_xyz_stc_dot = Eigen::Vector3d::Zero();
   Eigen::Vector3d a_xyz_eq      = Eigen::Vector3d::Zero();
 
-  AdaptiveSMCOut last_smc_out_;
+  ControllerOut last_smc_out_;
 
   // adaptive gains
   Eigen::Vector3d rt_xyz = {rt_x, rt_y, rt_z};
@@ -112,6 +118,7 @@ public:
   UAV_state state;
 
   // params/gains
+  // design parameters should be chosen according to the criteria stated in Remark 3.
   double k2_x    = 0.001;
   double rt_x    = 0.000;
   double alpha_x = 0.9;
@@ -130,7 +137,7 @@ public:
 
   double k2_z    = 0.001;
   double rt_z    = 0.000;
-  double alpha_z = 1.2;  // damping
+  double alpha_z = 1.2;
   double eps_z   = 0.01;
   double gamma_z = 2;
   double r0_z    = 0.0001;
@@ -149,7 +156,7 @@ public:
 
 class Plugin : public as2_motion_controller_plugin_base::ControllerBase {
 public:
-  Plugin(){};
+  Plugin();
   ~Plugin(){};
 
 public:
@@ -183,7 +190,7 @@ private:
   as2_msgs::msg::ControlMode control_mode_in_;
   as2_msgs::msg::ControlMode control_mode_out_;
 
-  AdaptiveSMC smc_;
+  AdaptiveSuperTwistingController controller_;
 
   Control_flags flags_;
 

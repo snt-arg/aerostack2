@@ -42,6 +42,8 @@ namespace astc_controller {
     param_var = param.get_value<double>();                                                     \
   }
 
+Plugin::Plugin() : controller_(node_ptr_->get_logger()) {}
+
 void Plugin::ownInitialize() {
   tf_handler_ = std::make_shared<as2::tf::TfHandler>(node_ptr_);
 
@@ -69,7 +71,7 @@ void Plugin::reset() {
   resetReferences();
   resetState();
   resetCommands();
-  smc_.reset();
+  controller_.reset();
 }
 
 void Plugin::resetState() { uav_state_ = UAV_state(); }
@@ -82,7 +84,7 @@ void Plugin::resetReferences() {
   control_ref_.yaw        = eul_uav[0];
 }
 
-void Plugin::resetCommands() { smc_.reset(); }
+void Plugin::resetCommands() { controller_.reset(); }
 
 void Plugin::updateState(const geometry_msgs::msg::PoseStamped &pose_msg,
                          const geometry_msgs::msg::TwistStamped &twist_msg) {
@@ -108,21 +110,6 @@ void Plugin::updateState(const geometry_msgs::msg::PoseStamped &pose_msg,
                         twist_msg.twist.angular.z};
 
   flags_.state_received = true;
-
-  // std::cout << "Got pose in " << pose_msg.header.frame_id << std::endl;
-  // std::cout << "Got twist in " << twist_msg.header.frame_id << std::endl;
-
-  // convert twist frame to flu
-  // geometry_msgs::msg::TwistStamped twist_msg_flu = twist_msg;
-  // if (tf_handler_->tryConvert(twist_msg_flu, flu_frame_id_)) {
-  //   uav_state_.pose  = pose_msg.pose;
-  //   uav_state_.twist = twist_msg_flu.twist;
-
-  //   // std::cout << "Got pose in " << pose_msg.header.frame_id << std::endl;
-  //   // std::cout << "Got twist in " << twist_msg_flu.header.frame_id << std::endl;
-
-  //   flags_.state_received = true;
-  // }
 };
 
 void Plugin::updateReference(const geometry_msgs::msg::PoseStamped &pose_msg) {
@@ -152,9 +139,6 @@ void Plugin::updateReference(const geometry_msgs::msg::TwistStamped &twist_msg) 
 
 void Plugin::updateReference(const as2_msgs::msg::TrajectoryPoint &traj_msg) {
   printf("traj received\n");
-  // if (control_mode_in_.control_mode != as2_msgs::msg::ControlMode::TRAJECTORY) {
-  //   return;
-  // }
 
   assert(traj_msg.header.frame_id == enu_frame_id_);
 
@@ -208,7 +192,8 @@ bool Plugin::setMode(const as2_msgs::msg::ControlMode &in_mode,
       control_mode_in_.reference_frame = as2_msgs::msg::ControlMode::LOCAL_ENU_FRAME;
     }
 
-    printf("Set mode %i\n", control_mode_in_.control_mode);
+    RCLCPP_INFO(node_ptr_->get_logger(), "Changed control mode to %i",
+                control_mode_in_.control_mode);
   }
 
   return accepted;
@@ -234,36 +219,36 @@ rcl_interfaces::msg::SetParametersResult Plugin::parametersCallback(
   result.reason     = "success";
 
   for (const auto &param : parameters) {
-    DECLARE_PARAM(param, "astc.k2.x", smc_.k2_x);
-    DECLARE_PARAM(param, "astc.k2.y", smc_.k2_y);
-    DECLARE_PARAM(param, "astc.k2.z", smc_.k2_z);
-    DECLARE_PARAM(param, "astc.rt.x", smc_.rt_x);
-    DECLARE_PARAM(param, "astc.rt.y", smc_.rt_y);
-    DECLARE_PARAM(param, "astc.rt.z", smc_.rt_z);
-    DECLARE_PARAM(param, "astc.alpha.x", smc_.alpha_x);
-    DECLARE_PARAM(param, "astc.alpha.y", smc_.alpha_y);
-    DECLARE_PARAM(param, "astc.alpha.z", smc_.alpha_z);
-    DECLARE_PARAM(param, "astc.gamma.x", smc_.gamma_x);
-    DECLARE_PARAM(param, "astc.gamma.y", smc_.gamma_y);
-    DECLARE_PARAM(param, "astc.gamma.z", smc_.gamma_z);
-    DECLARE_PARAM(param, "astc.r0.x", smc_.r0_x);
-    DECLARE_PARAM(param, "astc.r0.y", smc_.r0_y);
-    DECLARE_PARAM(param, "astc.r0.z", smc_.r0_z);
-    DECLARE_PARAM(param, "astc.eps.x", smc_.eps_x);
-    DECLARE_PARAM(param, "astc.eps.y", smc_.eps_y);
-    DECLARE_PARAM(param, "astc.eps.z", smc_.eps_z);
-    DECLARE_PARAM(param, "astc.q.x", smc_.q_x);
-    DECLARE_PARAM(param, "astc.q.y", smc_.q_y);
-    DECLARE_PARAM(param, "astc.q.z", smc_.q_z);
-    DECLARE_PARAM(param, "astc.tau.lps", smc_.tau_lpf);
-    DECLARE_PARAM(param, "astc.lambda.xy", smc_.lambda_xy);
-    DECLARE_PARAM(param, "astc.lambda.z", smc_.lambda_z);
-    DECLARE_PARAM(param, "astc.lambda.omega", smc_.lambda_omega);
-    DECLARE_PARAM(param, "astc.delta.x", smc_.delta_x);
-    DECLARE_PARAM(param, "astc.delta.y", smc_.delta_y);
-    DECLARE_PARAM(param, "astc.delta.z", smc_.delta_z);
-    DECLARE_PARAM(param, "astc.eps.smc", smc_.eps_smc);
-    DECLARE_PARAM(param, "astc.mass", smc_.mass);
+    DECLARE_PARAM(param, "astc.k2.x", controller_.k2_x);
+    DECLARE_PARAM(param, "astc.k2.y", controller_.k2_y);
+    DECLARE_PARAM(param, "astc.k2.z", controller_.k2_z);
+    DECLARE_PARAM(param, "astc.rt.x", controller_.rt_x);
+    DECLARE_PARAM(param, "astc.rt.y", controller_.rt_y);
+    DECLARE_PARAM(param, "astc.rt.z", controller_.rt_z);
+    DECLARE_PARAM(param, "astc.alpha.x", controller_.alpha_x);
+    DECLARE_PARAM(param, "astc.alpha.y", controller_.alpha_y);
+    DECLARE_PARAM(param, "astc.alpha.z", controller_.alpha_z);
+    DECLARE_PARAM(param, "astc.gamma.x", controller_.gamma_x);
+    DECLARE_PARAM(param, "astc.gamma.y", controller_.gamma_y);
+    DECLARE_PARAM(param, "astc.gamma.z", controller_.gamma_z);
+    DECLARE_PARAM(param, "astc.r0.x", controller_.r0_x);
+    DECLARE_PARAM(param, "astc.r0.y", controller_.r0_y);
+    DECLARE_PARAM(param, "astc.r0.z", controller_.r0_z);
+    DECLARE_PARAM(param, "astc.eps.x", controller_.eps_x);
+    DECLARE_PARAM(param, "astc.eps.y", controller_.eps_y);
+    DECLARE_PARAM(param, "astc.eps.z", controller_.eps_z);
+    DECLARE_PARAM(param, "astc.q.x", controller_.q_x);
+    DECLARE_PARAM(param, "astc.q.y", controller_.q_y);
+    DECLARE_PARAM(param, "astc.q.z", controller_.q_z);
+    DECLARE_PARAM(param, "astc.tau.lps", controller_.tau_lpf);
+    DECLARE_PARAM(param, "astc.lambda.xy", controller_.lambda_xy);
+    DECLARE_PARAM(param, "astc.lambda.z", controller_.lambda_z);
+    DECLARE_PARAM(param, "astc.lambda.omega", controller_.lambda_omega);
+    DECLARE_PARAM(param, "astc.delta.x", controller_.delta_x);
+    DECLARE_PARAM(param, "astc.delta.y", controller_.delta_y);
+    DECLARE_PARAM(param, "astc.delta.z", controller_.delta_z);
+    DECLARE_PARAM(param, "astc.eps.smc", controller_.eps_smc);
+    DECLARE_PARAM(param, "astc.mass", controller_.mass);
   }
   return result;
 }
@@ -281,11 +266,11 @@ bool Plugin::computeOutput(double dt,
   if (!flags_.ref_received) {
     auto &clk = *node_ptr_->get_clock();
     RCLCPP_WARN_THROTTLE(node_ptr_->get_logger(), clk, 5000,
-                         "State changed, but ref not recived yet");
+                         "State changed, but ref not received yet");
     return false;
   }
 
-  smc_.setCurrentState(uav_state_);
+  controller_.setCurrentState(uav_state_);
 
   Eigen::Vector4d pos_ref = {control_ref_.position.x(), control_ref_.position.y(),
                              control_ref_.position.z(), control_ref_.yaw};
@@ -294,7 +279,7 @@ bool Plugin::computeOutput(double dt,
                                               control_ref_.lin_vel.z(), control_ref_.yaw_speed};
 
   as2_msgs::msg::ControllerDebug dbg_msg;
-  auto smc_out = smc_.update(dt, pos_ref, twist_ref, flags_, dbg_msg);
+  auto smc_out = controller_.update(dt, pos_ref, twist_ref, flags_, dbg_msg);
 
   debug_pub_->publish(dbg_msg);
 
@@ -326,8 +311,8 @@ bool Plugin::computeOutput(double dt,
   return true;
 }
 
-void AdaptiveSMC::reset() {
-  printf("Reset SMC\n");
+void AdaptiveSuperTwistingController::reset() {
+  RCLCPP_INFO(logger_, "Reset");
 
   // reset adaptive gains to default
   rt_xyz = {rt_x, rt_y, rt_z};
@@ -337,19 +322,16 @@ void AdaptiveSMC::reset() {
   a_xyz_stc     = Eigen::Vector3d::Zero();
   a_xyz_stc_dot = Eigen::Vector3d::Zero();
   a_xyz_eq      = Eigen::Vector3d::Zero();
-  last_smc_out_ = AdaptiveSMCOut();
+  last_smc_out_ = ControllerOut();
 }
 
-void AdaptiveSMC::setCurrentState(const UAV_state &state_) { state = state_; }
+void AdaptiveSuperTwistingController::setCurrentState(const UAV_state &state_) { state = state_; }
 
-AdaptiveSMCOut AdaptiveSMC::update(double dt,
-                                   const Eigen::Vector4d &pos_sp,
-                                   const Eigen::Vector4d &vel_sp_,
-                                   const Control_flags &flags,
-                                   as2_msgs::msg::ControllerDebug &dbg_msg) {
-  // Note position and velocity are in inertial frame (ENU)
-  // Angular velocities are in body frame (FLU)
-
+ControllerOut AdaptiveSuperTwistingController::update(double dt,
+                                                      const Eigen::Vector4d &pos_sp,
+                                                      const Eigen::Vector4d &vel_sp_,
+                                                      const Control_flags &flags,
+                                                      as2_msgs::msg::ControllerDebug &dbg_msg) {
   // guard against too small timesteps
   if (dt < 1e-6) {
     return last_smc_out_;
@@ -403,16 +385,6 @@ AdaptiveSMCOut AdaptiveSMC::update(double dt,
   Eigen::Vector3d gamma_xyz = {gamma_x, gamma_y, gamma_z};
   Eigen::Vector3d q_xyz     = {q_x, q_y, q_z};
   Eigen::Vector3d s_xyz     = err_uvw + lambda.cwiseProduct(err_xyz);  // (5)
-
-  // conditions for design parameters
-  // * lambda governs the exponential convergence rate
-  //   lambda should be chosen such that the system converges sufficiently
-  //   fast without introducing chattering
-  // * k1 should be selected sufficiently large to comply with the condition
-  //   k1 > d1 (4a)
-  // * tau_lpf should be small enough to capture the behavior of the input signal
-  // * alpha must be sufficiently large and eps sufficiently large such that
-  //
 
   Eigen::Vector3d sw_fn = s_xyz.cwiseQuotient(
       s_xyz.cwiseAbs() + Eigen::Vector3d{eps_smc, eps_smc, eps_smc});  // switching function
@@ -486,9 +458,9 @@ AdaptiveSMCOut AdaptiveSMC::update(double dt,
   double az2    = (q_uav.toRotationMatrix().transpose() * a_xyz).z();
   double thrust = az2 * mass;
 
-  auto smc_out = AdaptiveSMCOut{.body_rates  = {omega_des.x(), omega_des.y(), omega_des.z()},
-                                .orientation = q_des,
-                                .thrust      = thrust};
+  auto smc_out = ControllerOut{.body_rates  = {omega_des.x(), omega_des.y(), omega_des.z()},
+                               .orientation = q_des,
+                               .thrust      = thrust};
 
   last_smc_out_ = smc_out;
 
