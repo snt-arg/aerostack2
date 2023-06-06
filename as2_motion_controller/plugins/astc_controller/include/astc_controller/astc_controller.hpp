@@ -85,8 +85,13 @@ struct ControllerOut {
   double thrust = 0.0;
 };
 
-/// @brief Adaptive Super-Twisting Control (ASTC) based on the work of D.M.K.K. Venkateswara Rao et
-/// al. presented in arXiv: 2303.11770.
+/// @brief Adaptive Super-Twisting Control (ASTC) based on:
+///
+/// D. M. K. K. V. Rao, H. Habibi, J. L. Sanchez-Lopez, P. P. Menon, C. Edwards, and H. Voos,
+/// “Adaptive Super-Twisting Controller Design for Accurate Trajectory Tracking Performance of
+/// Unmanned Aerial Vehicles,” arXiv Prepr., pp. 1–10, Mar. 2023,
+/// Available: http://arxiv.org/abs/2303.11770.
+///
 class AdaptiveSuperTwistingController {
 private:
   // logger
