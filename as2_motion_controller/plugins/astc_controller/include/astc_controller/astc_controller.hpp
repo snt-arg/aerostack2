@@ -161,7 +161,7 @@ public:
 
 class Plugin : public as2_motion_controller_plugin_base::ControllerBase {
 public:
-  Plugin();
+  Plugin(){};
   ~Plugin(){};
 
 public:
@@ -195,7 +195,7 @@ private:
   as2_msgs::msg::ControlMode control_mode_in_;
   as2_msgs::msg::ControlMode control_mode_out_;
 
-  AdaptiveSuperTwistingController controller_;
+  std::unique_ptr<AdaptiveSuperTwistingController> controller_;
 
   Control_flags flags_;
 

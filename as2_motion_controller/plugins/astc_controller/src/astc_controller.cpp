@@ -42,8 +42,6 @@ namespace astc_controller {
     param_var = param.get_value<double>();                                                     \
   }
 
-Plugin::Plugin() : controller_(node_ptr_->get_logger()) {}
-
 void Plugin::ownInitialize() {
   tf_handler_ = std::make_shared<as2::tf::TfHandler>(node_ptr_);
 
@@ -59,6 +57,8 @@ void Plugin::ownInitialize() {
   debug_pub_ = node_ptr_->create_publisher<as2_msgs::msg::ControllerDebug>("controller_debug",
                                                                            rclcpp::SensorDataQoS());
 
+  controller_ = std::make_unique<AdaptiveSuperTwistingController>(node_ptr_->get_logger());
+
   reset();
 };
 
@@ -71,7 +71,7 @@ void Plugin::reset() {
   resetReferences();
   resetState();
   resetCommands();
-  controller_.reset();
+  controller_->reset();
 }
 
 void Plugin::resetState() { uav_state_ = UAV_state(); }
@@ -84,7 +84,7 @@ void Plugin::resetReferences() {
   control_ref_.yaw        = eul_uav[0];
 }
 
-void Plugin::resetCommands() { controller_.reset(); }
+void Plugin::resetCommands() { controller_->reset(); }
 
 void Plugin::updateState(const geometry_msgs::msg::PoseStamped &pose_msg,
                          const geometry_msgs::msg::TwistStamped &twist_msg) {
@@ -219,36 +219,36 @@ rcl_interfaces::msg::SetParametersResult Plugin::parametersCallback(
   result.reason     = "success";
 
   for (const auto &param : parameters) {
-    DECLARE_PARAM(param, "astc.k2.x", controller_.k2_x);
-    DECLARE_PARAM(param, "astc.k2.y", controller_.k2_y);
-    DECLARE_PARAM(param, "astc.k2.z", controller_.k2_z);
-    DECLARE_PARAM(param, "astc.rt.x", controller_.rt_x);
-    DECLARE_PARAM(param, "astc.rt.y", controller_.rt_y);
-    DECLARE_PARAM(param, "astc.rt.z", controller_.rt_z);
-    DECLARE_PARAM(param, "astc.alpha.x", controller_.alpha_x);
-    DECLARE_PARAM(param, "astc.alpha.y", controller_.alpha_y);
-    DECLARE_PARAM(param, "astc.alpha.z", controller_.alpha_z);
-    DECLARE_PARAM(param, "astc.gamma.x", controller_.gamma_x);
-    DECLARE_PARAM(param, "astc.gamma.y", controller_.gamma_y);
-    DECLARE_PARAM(param, "astc.gamma.z", controller_.gamma_z);
-    DECLARE_PARAM(param, "astc.r0.x", controller_.r0_x);
-    DECLARE_PARAM(param, "astc.r0.y", controller_.r0_y);
-    DECLARE_PARAM(param, "astc.r0.z", controller_.r0_z);
-    DECLARE_PARAM(param, "astc.eps.x", controller_.eps_x);
-    DECLARE_PARAM(param, "astc.eps.y", controller_.eps_y);
-    DECLARE_PARAM(param, "astc.eps.z", controller_.eps_z);
-    DECLARE_PARAM(param, "astc.q.x", controller_.q_x);
-    DECLARE_PARAM(param, "astc.q.y", controller_.q_y);
-    DECLARE_PARAM(param, "astc.q.z", controller_.q_z);
-    DECLARE_PARAM(param, "astc.tau.lps", controller_.tau_lpf);
-    DECLARE_PARAM(param, "astc.lambda.xy", controller_.lambda_xy);
-    DECLARE_PARAM(param, "astc.lambda.z", controller_.lambda_z);
-    DECLARE_PARAM(param, "astc.lambda.omega", controller_.lambda_omega);
-    DECLARE_PARAM(param, "astc.delta.x", controller_.delta_x);
-    DECLARE_PARAM(param, "astc.delta.y", controller_.delta_y);
-    DECLARE_PARAM(param, "astc.delta.z", controller_.delta_z);
-    DECLARE_PARAM(param, "astc.eps.smc", controller_.eps_smc);
-    DECLARE_PARAM(param, "astc.mass", controller_.mass);
+    DECLARE_PARAM(param, "astc.k2.x", controller_->k2_x);
+    DECLARE_PARAM(param, "astc.k2.y", controller_->k2_y);
+    DECLARE_PARAM(param, "astc.k2.z", controller_->k2_z);
+    DECLARE_PARAM(param, "astc.rt.x", controller_->rt_x);
+    DECLARE_PARAM(param, "astc.rt.y", controller_->rt_y);
+    DECLARE_PARAM(param, "astc.rt.z", controller_->rt_z);
+    DECLARE_PARAM(param, "astc.alpha.x", controller_->alpha_x);
+    DECLARE_PARAM(param, "astc.alpha.y", controller_->alpha_y);
+    DECLARE_PARAM(param, "astc.alpha.z", controller_->alpha_z);
+    DECLARE_PARAM(param, "astc.gamma.x", controller_->gamma_x);
+    DECLARE_PARAM(param, "astc.gamma.y", controller_->gamma_y);
+    DECLARE_PARAM(param, "astc.gamma.z", controller_->gamma_z);
+    DECLARE_PARAM(param, "astc.r0.x", controller_->r0_x);
+    DECLARE_PARAM(param, "astc.r0.y", controller_->r0_y);
+    DECLARE_PARAM(param, "astc.r0.z", controller_->r0_z);
+    DECLARE_PARAM(param, "astc.eps.x", controller_->eps_x);
+    DECLARE_PARAM(param, "astc.eps.y", controller_->eps_y);
+    DECLARE_PARAM(param, "astc.eps.z", controller_->eps_z);
+    DECLARE_PARAM(param, "astc.q.x", controller_->q_x);
+    DECLARE_PARAM(param, "astc.q.y", controller_->q_y);
+    DECLARE_PARAM(param, "astc.q.z", controller_->q_z);
+    DECLARE_PARAM(param, "astc.tau.lps", controller_->tau_lpf);
+    DECLARE_PARAM(param, "astc.lambda.xy", controller_->lambda_xy);
+    DECLARE_PARAM(param, "astc.lambda.z", controller_->lambda_z);
+    DECLARE_PARAM(param, "astc.lambda.omega", controller_->lambda_omega);
+    DECLARE_PARAM(param, "astc.delta.x", controller_->delta_x);
+    DECLARE_PARAM(param, "astc.delta.y", controller_->delta_y);
+    DECLARE_PARAM(param, "astc.delta.z", controller_->delta_z);
+    DECLARE_PARAM(param, "astc.eps.smc", controller_->eps_smc);
+    DECLARE_PARAM(param, "astc.mass", controller_->mass);
   }
   return result;
 }
@@ -270,7 +270,7 @@ bool Plugin::computeOutput(double dt,
     return false;
   }
 
-  controller_.setCurrentState(uav_state_);
+  controller_->setCurrentState(uav_state_);
 
   Eigen::Vector4d pos_ref = {control_ref_.position.x(), control_ref_.position.y(),
                              control_ref_.position.z(), control_ref_.yaw};
@@ -279,7 +279,7 @@ bool Plugin::computeOutput(double dt,
                                               control_ref_.lin_vel.z(), control_ref_.yaw_speed};
 
   as2_msgs::msg::ControllerDebug dbg_msg;
-  auto smc_out = controller_.update(dt, pos_ref, twist_ref, flags_, dbg_msg);
+  auto smc_out = controller_->update(dt, pos_ref, twist_ref, flags_, dbg_msg);
 
   debug_pub_->publish(dbg_msg);
 
