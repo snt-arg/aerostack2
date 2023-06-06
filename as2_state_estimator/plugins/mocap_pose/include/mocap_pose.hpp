@@ -74,7 +74,7 @@ public:
   const geometry_msgs::msg::TwistStamped& twist_from_pose(
       const geometry_msgs::msg::PoseStamped& pose,
       std::vector<tf2::Transform>* data = nullptr) {
-    const double alpha = 0.1;
+    const double alpha = 0.03;
 
     const auto last_time = twist_msg_.header.stamp;
     auto dt              = (rclcpp::Time(pose.header.stamp) - last_time).seconds();
@@ -98,7 +98,8 @@ public:
                                                    twist_msg_.twist.linear.y,
                                                    twist_msg_.twist.linear.z);
 
-    twist_msg_.header.stamp   = pose.header.stamp;
+    const auto time           = node_ptr_->now();
+    twist_msg_.header.stamp   = time;
     twist_msg_.twist.linear.x = vel.x();
     twist_msg_.twist.linear.y = vel.y();
     twist_msg_.twist.linear.z = vel.z();
@@ -118,7 +119,7 @@ public:
 
       // FIXME: CLEAN STATIC
       static geometry_msgs::msg::TwistStamped twist_msg;
-      twist_msg.header.stamp    = pose.header.stamp;
+      twist_msg.header.stamp    = time;
       twist_msg.header.frame_id = get_base_frame();
       twist_msg.twist.linear.x  = vel.x();
       twist_msg.twist.linear.y  = vel.y();
