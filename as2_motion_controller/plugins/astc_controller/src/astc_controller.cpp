@@ -60,8 +60,8 @@ void Plugin::ownInitialize() {
   reset();
 };
 
-bool Plugin::updateParams(const std::vector<std::string> &_params_list) {
-  auto result = parametersCallback(node_ptr_->get_parameters(_params_list));
+bool Plugin::updateParams(const std::vector<rclcpp::Parameter> &_params_list) {
+  auto result = parametersCallback(_params_list);
   return result.successful;
 };
 
@@ -233,11 +233,7 @@ rcl_interfaces::msg::SetParametersResult Plugin::parametersCallback(
   result.successful = true;
   result.reason     = "success";
 
-  for (const auto &param_ : parameters) {
-    const std::string param_name = param_.get_name();
-
-    auto param = node_ptr_->get_parameter(param_name);
-
+  for (const auto &param : parameters) {
     DECLARE_PARAM(param, "astc.k2.x", smc_.k2_x);
     DECLARE_PARAM(param, "astc.k2.y", smc_.k2_y);
     DECLARE_PARAM(param, "astc.k2.z", smc_.k2_z);

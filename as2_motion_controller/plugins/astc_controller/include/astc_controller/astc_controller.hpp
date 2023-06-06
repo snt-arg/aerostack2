@@ -161,7 +161,7 @@ public:
   void updateReference(const geometry_msgs::msg::TwistStamped &ref) override;
   void updateReference(const as2_msgs::msg::TrajectoryPoint &ref) override;
 
-  bool updateParams(const std::vector<std::string> &_params_list) override;
+  bool updateParams(const std::vector<rclcpp::Parameter> &_params_list) override;
   rcl_interfaces::msg::SetParametersResult parametersCallback(
       const std::vector<rclcpp::Parameter> &parameters);
 
