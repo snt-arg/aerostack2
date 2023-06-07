@@ -125,24 +125,25 @@ public:
   // design parameters should be chosen according to the criteria stated in Remark 3.
   // parameters worth tuning are lambda_xy|z, gamma_x|y|z, lpf
   // tune q_x|y|z, alpha for better disturbance rejection
-  double k2_x    = 0.001;
-  double rt_x    = 0.000;
+  // initial adaptive gains (k2_x|y|z and rt_x|y|z) can be set to zero
+  double k2_x    = 0.0;
+  double rt_x    = 0.0;
   double alpha_x = 0.9;  // between (0;1), disturbance
   double eps_x   = 0.001;
   double gamma_x = 2.0;  // convergence rate
   double r0_x    = 0.0001;
   double q_x     = 0.04;  // disturbance
 
-  double k2_y    = 0.001;
-  double rt_y    = 0.000;
+  double k2_y    = 0.0;
+  double rt_y    = 0.0;
   double alpha_y = 0.9;
   double eps_y   = 0.001;
   double gamma_y = 2.0;
   double r0_y    = 0.0001;
   double q_y     = 0.04;
 
-  double k2_z    = 0.001;
-  double rt_z    = 0.000;
+  double k2_z    = 0.0;
+  double rt_z    = 0.0;
   double alpha_z = 1.2;
   double eps_z   = 0.01;
   double gamma_z = 2.0;

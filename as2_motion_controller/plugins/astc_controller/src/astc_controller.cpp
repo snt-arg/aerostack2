@@ -344,15 +344,17 @@ ControllerOut AdaptiveSuperTwistingController::update(double dt,
   Eigen::Vector3d xyz_uav = state.position;  // (ENU)
   Eigen::Vector3d uvw_uav = state.lin_vel;   // (ENU)
 
-  double k1_x = 1.5 * std::sqrt(k2_x / 1.0);
-  double k1_y = 1.5 * std::sqrt(k2_y / 1.0);
-  double k1_z = 1.5 * std::sqrt(k2_z / 1.0);
+  // k2 is an adaptive gain
+  double k1_x = 1.5 * std::sqrt(k2_xyz.x());
+  double k1_y = 1.5 * std::sqrt(k2_xyz.y());
+  double k1_z = 1.5 * std::sqrt(k2_xyz.z());
 
   Eigen::Vector4d vel_sp = vel_sp_;
   if (flags.ignore_vel_sp) {
     vel_sp = Eigen::Vector4d::Zero();
   }
 
+  // position and velocity error
   Eigen::Vector3d err_xyz = xyz_uav - pos_sp.head<3>();
   Eigen::Vector3d err_uvw = uvw_uav - vel_sp.head<3>();
 
