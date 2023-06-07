@@ -1,39 +1,34 @@
 /**:
   ros__parameters:
     astc:
-      k2.x: 0.3
+      k2.x: 0.001
       rt.x: 0.000
-      alpha.x: 1.5
-      eps.x: 0.00001
-      gamma.x: 1.0
-      r0.x: 0.001
+      alpha.x: 0.9
+      eps.x: 0.005
+      gamma.x: 2.0
+      r0.x: 0.0001
       q.x: 0.04
 
-      k2.y: 0.3
+      k2.y: 0.001
       rt.y: 0.000
-      alpha.y: 1.5
-      eps.y: 0.00001
-      gamma.y: 1.0
-      r0.y: 0.001
+      alpha.y: 0.9
+      eps.y: 0.005
+      gamma.y: 2.0
+      r0.y: 0.0001
       q.y: 0.04
 
-      k2.z: 0.5 # 2.0
+      k2.z: 0.001
       rt.z: 0.000
-      alpha.z: 1.2
+      alpha.z: 0.9
       eps.z: 0.01
       gamma.z: 2.0
       r0.z: 0.0001
-      q.z: 0.02
+      q.z: 0.01
 
-      tau.lpf: 0.04
-      lambda.xy: 2.0
-      lambda.z: 4.0
-      lambda.omega: 4.0
-      delta.x: 0.001
-      delta.y: 0.001
-      delta.z: 0.002
-      eps.smc: 0.03
+      tau.lpf: 0.02
+      lambda.xy: 1.0
+      lambda.z: 2.0
+      lambda.omega: 1.0
+      eps.smc: 0.01
 
-      #a.scale: 21.3261
-      a.scale: 1.0
-      mass: 1.5
+      mass: 1.54
