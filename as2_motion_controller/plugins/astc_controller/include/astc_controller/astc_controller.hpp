@@ -152,9 +152,6 @@ public:
   double lambda_xy    = 2.25;
   double lambda_z     = 2.0;
   double lambda_omega = 2.0;
-  double delta_x      = 0.01;
-  double delta_y      = 0.01;
-  double delta_z      = 0.01;
   double eps_smc      = 0.1;
   double mass         = 1.5;
 };

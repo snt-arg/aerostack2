@@ -240,13 +240,10 @@ rcl_interfaces::msg::SetParametersResult Plugin::parametersCallback(
     DECLARE_PARAM(param, "astc.q.x", controller_->q_x);
     DECLARE_PARAM(param, "astc.q.y", controller_->q_y);
     DECLARE_PARAM(param, "astc.q.z", controller_->q_z);
-    DECLARE_PARAM(param, "astc.tau.lps", controller_->tau_lpf);
+    DECLARE_PARAM(param, "astc.tau.lpf", controller_->tau_lpf);
     DECLARE_PARAM(param, "astc.lambda.xy", controller_->lambda_xy);
     DECLARE_PARAM(param, "astc.lambda.z", controller_->lambda_z);
     DECLARE_PARAM(param, "astc.lambda.omega", controller_->lambda_omega);
-    DECLARE_PARAM(param, "astc.delta.x", controller_->delta_x);
-    DECLARE_PARAM(param, "astc.delta.y", controller_->delta_y);
-    DECLARE_PARAM(param, "astc.delta.z", controller_->delta_z);
     DECLARE_PARAM(param, "astc.eps.smc", controller_->eps_smc);
     DECLARE_PARAM(param, "astc.mass", controller_->mass);
   }
