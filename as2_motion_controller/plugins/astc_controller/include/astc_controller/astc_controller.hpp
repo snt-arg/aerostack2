@@ -109,9 +109,8 @@ public:
                        as2_msgs::msg::ControllerDebug &dbg_msg);
 
   // controller state
-  Eigen::Vector3d a_xyz_stc     = Eigen::Vector3d::Zero();
-  Eigen::Vector3d a_xyz_stc_dot = Eigen::Vector3d::Zero();
-  Eigen::Vector3d a_xyz_eq      = Eigen::Vector3d::Zero();
+  Eigen::Vector3d a_xyz_stc = Eigen::Vector3d::Zero();
+  Eigen::Vector3d a_xyz_eq  = Eigen::Vector3d::Zero();
 
   ControllerOut last_smc_out_;
 

@@ -317,7 +317,6 @@ void AdaptiveSuperTwistingController::reset() {
 
   // reset state
   a_xyz_stc     = Eigen::Vector3d::Zero();
-  a_xyz_stc_dot = Eigen::Vector3d::Zero();
   a_xyz_eq      = Eigen::Vector3d::Zero();
   last_smc_out_ = ControllerOut();
 }
@@ -388,9 +387,9 @@ ControllerOut AdaptiveSuperTwistingController::update(double dt,
 
   Eigen::Vector3d a_xyz = -lambda.cwiseProduct(err_uvw) -
                           k1_xyz.cwiseProduct(s_xyz.cwiseAbs().cwiseSqrt()).cwiseProduct(sw_fn) +
-                          a_xyz_stc + a_xyz_des;  // (6a)
-  a_xyz_stc_dot = -k2_xyz.cwiseProduct(sw_fn);    // (6b)
-  a_xyz_eq      = (1.0 - dt / tau_lpf) * a_xyz_eq - (dt / tau_lpf) * a_xyz_stc_dot;
+                          a_xyz_stc + a_xyz_des;                // (6a)
+  Eigen::Vector3d a_xyz_stc_dot = -k2_xyz.cwiseProduct(sw_fn);  // (6b)
+  a_xyz_eq                      = (1.0 - dt / tau_lpf) * a_xyz_eq - (dt / tau_lpf) * a_xyz_stc_dot;
   Eigen::Vector3d deltat_xyz =
       k2_xyz - a_xyz_eq.cwiseAbs().cwiseQuotient(alpha_xyz) - eps_xyz;  // (9a)
   Eigen::Vector3d e_xyz = q_xyz.cwiseQuotient(alpha_xyz) - rt_xyz;      // (9b)
