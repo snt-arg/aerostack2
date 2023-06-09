@@ -66,23 +66,23 @@ struct Control_flags {
 };
 
 struct UAV_state {
-  Eigen::Vector3d position;
-  Eigen::Vector3d lin_vel;
-  Eigen::Vector3d ang_vel;
-  Eigen::Quaterniond orientation;
+  Eigen::Vector3d position       = Eigen::Vector3d::Zero();
+  Eigen::Vector3d lin_vel        = Eigen::Vector3d::Zero();
+  Eigen::Vector3d ang_vel        = Eigen::Vector3d::Zero();
+  Eigen::Quaterniond orientation = Eigen::Quaterniond::Identity();
 };
 
 struct UAV_controlRef {
-  Eigen::Vector3d position;
-  Eigen::Vector3d lin_vel;
-  double yaw       = 0.0;
-  double yaw_speed = 0.0;
+  Eigen::Vector3d position = Eigen::Vector3d::Zero();
+  Eigen::Vector3d lin_vel  = Eigen::Vector3d::Zero();
+  double yaw               = 0.0;
+  double yaw_speed         = 0.0;
 };
 
 struct ControllerOut {
-  Eigen::Vector3d body_rates;
-  Eigen::Quaterniond orientation;
-  double thrust = 0.0;
+  Eigen::Vector3d body_rates     = Eigen::Vector3d::Zero();
+  Eigen::Quaterniond orientation = Eigen::Quaterniond::Identity();
+  double thrust                  = 0.0;
 };
 
 /// @brief Adaptive Super-Twisting Control (ASTC) based on:

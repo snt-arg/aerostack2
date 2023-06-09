@@ -82,6 +82,7 @@ void Plugin::resetReferences() {
 
   Eigen::Vector3d eul_uav = utils::quatToYPR(uav_state_.orientation);
   control_ref_.yaw        = eul_uav[0];
+  control_ref_.yaw_speed  = 0.0;
 }
 
 void Plugin::resetCommands() { controller_->reset(); }
@@ -408,8 +409,8 @@ ControllerOut AdaptiveSuperTwistingController::update(double dt,
   k2_xyz += dt * -(r0_xyz + rt_xyz).cwiseProduct(deltat_xyz.cwiseSign());
   a_xyz_stc += dt * a_xyz_stc_dot;
 
-  k2_xyz = k2_xyz.cwiseMax(0.0).cwiseMin(2.0);
-  rt_xyz = rt_xyz.cwiseMax(0.0).cwiseMin(2.0);
+  k2_xyz = k2_xyz.cwiseMax(0.0).cwiseMin(5.0);
+  rt_xyz = rt_xyz.cwiseMax(0.0).cwiseMin(5.0);
 
   // printf("k2_xyz [%.2f, %.2f, %.2f]\n", k2_xyz.x(), k2_xyz.y(), k2_xyz.z());
   // printf("a_xyz_stc_dot [%.2f, %.2f, %.2f], a_xyz_eq [%.4f, %.4f, %.4f]\n",
@@ -424,16 +425,17 @@ ControllerOut AdaptiveSuperTwistingController::update(double dt,
 
   // in psi
   double psi_des   = flags.yaw_speed ? psi_uav + dt * vel_sp.w() : pos_sp.w();
-  double ax2       = a_xyz.x() * std::cos(psi_uav) + a_xyz.y() * std::sin(psi_uav);
-  double ay2       = -a_xyz.x() * std::sin(psi_uav) + a_xyz.y() * std::cos(psi_uav);
+  double ax2       = a_xyz.x() * std::cos(psi_des) + a_xyz.y() * std::sin(psi_des);
+  double ay2       = -a_xyz.x() * std::sin(psi_des) + a_xyz.y() * std::cos(psi_des);
   double phi_des   = std::asin(-ay2 / f);
-  double theta_des = std::asin(ax2 / (f * std::cos(phi_uav)));
+  double theta_des = std::asin(ax2 / (f * std::cos(phi_des)));
 
   // printf("phi_des %.2f, theta_des %.2f, psi_des %.2f\n", phi_des * 180 / 3.1415,
   //        theta_des * 180 / 3.1415, psi_des * 180 / 3.1415);
 
-  phi_des   = std::clamp(phi_des * lambda_omega, -0.8, 0.8);
-  theta_des = std::clamp(theta_des * lambda_omega, -0.8, 0.8);
+  double deg45 = 0.7853981634;
+  phi_des      = std::clamp(phi_des * lambda_omega, -deg45, deg45);
+  theta_des    = std::clamp(theta_des * lambda_omega, -deg45, deg45);
 
   double delta_psi = flags.yaw_speed ? vel_sp.w() : psi_uav - psi_des;
 
